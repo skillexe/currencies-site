@@ -1,4 +1,3 @@
-/* Темная тема */
 body.dark-theme {
     background-color: #121212;
     color: #ffffff;
@@ -13,6 +12,7 @@ body.dark-theme {
     background-color: #333333;
 }
 
-.dark-theme .btn-floating {
+.dark-theme .btn-source {
     background-color: #444444;
+    color: #ffffff;
 }
