@@ -1,66 +1,65 @@
 {% extends "base.html" %}
-{% block title %}Конвертер валют{% endblock %}
+{% block title %}Конвертер{% endblock %}
 {% block content %}
-<div class="container">
-    <h1 class="mt-4 mb-4">Конвертер валют</h1>
-
-    <form id="converter-form" class="row g-3 mb-4">
-        <div class="col-md-4">
-            <label for="from-currency" class="form-label">Из валюты:</label>
-            <select id="from-currency" class="form-select">
-                <!-- Валюты загружаются динамически -->
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label for="to-currency" class="form-label">В валюту:</label>
-            <select id="to-currency" class="form-select">
-                <!-- Валюты загружаются динамически -->
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label for="amount" class="form-label">Сумма:</label>
-            <input type="number" id="amount" class="form-control" placeholder="Введите сумму" required>
-        </div>
-        <div class="col-md-12 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100">Конвертировать</button>
-        </div>
-    </form>
-
-    <h2 id="result" class="mt-4"></h2>
-</div>
+<h1 class="mt-4">Конвертер валют</h1>
+<form id="converter-form">
+    <div class="input-field">
+        <select id="from-currency" class="browser-default">
+            <!-- Валюты загружаются динамически -->
+        </select>
+        <label for="from-currency">Из валюты</label>
+    </div>
+    <div class="input-field">
+        <select id="to-currency" class="browser-default">
+            <!-- Валюты загружаются динамически -->
+        </select>
+        <label for="to-currency">В валюту</label>
+    </div>
+    <div class="input-field">
+        <input type="number" id="amount" placeholder="Введите сумму" required>
+        <label for="amount">Сумма</label>
+    </div>
+    <button type="submit" class="btn waves-effect waves-light teal">Конвертировать</button>
+</form>
+<p id="conversion-result"></p>
 
 <script>
-    // Загружаем список валют
-    fetch('/api/rates')
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                const fromCurrency = document.getElementById('from-currency');
-                const toCurrency = document.getElementById('to-currency');
-                data.data.forEach(rate => {
-                    const option = `<option value="${rate.code}">${rate.name}</option>`;
-                    fromCurrency.innerHTML += option;
-                    toCurrency.innerHTML += option;
-                });
-            }
-        });
-
-    // Обработка формы
-    document.getElementById('converter-form').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const fromCurrency = document.getElementById('from-currency').value;
-        const toCurrency = document.getElementById('to-currency').value;
-        const amount = parseFloat(document.getElementById('amount').value);
-
-        fetch(`/api/convert?from=${fromCurrency}&to=${toCurrency}&amount=${amount}`)
+    document.addEventListener('DOMContentLoaded', function() {
+        // Загружаем список валют
+        fetch('/api/rates')
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    document.getElementById('result').innerText = `${amount} ${fromCurrency} = ${data.converted} ${toCurrency}`;
+                    const fromCurrency = document.getElementById('from-currency');
+                    const toCurrency = document.getElementById('to-currency');
+                    data.data.forEach(rate => {
+                        const option = `<option value="${rate.code}">${rate.code}</option>`;
+                        fromCurrency.innerHTML += option;
+                        toCurrency.innerHTML += option;
+                    });
                 } else {
-                    alert(data.message || 'Ошибка конвертации');
+                    alert(data.message || 'Ошибка загрузки данных валют');
                 }
             });
+
+        // Обработка формы
+        document.getElementById('converter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const from = document.getElementById('from-currency').value;
+            const to = document.getElementById('to-currency').value;
+            const amount = document.getElementById('amount').value;
+
+            fetch(`/api/convert?from=${from}&to=${to}&amount=${amount}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('conversion-result').textContent =
+                            `Результат: ${data.converted}`;
+                    } else {
+                        alert(data.message || 'Ошибка конвертации');
+                    }
+                });
+        });
     });
 </script>
 {% endblock %}

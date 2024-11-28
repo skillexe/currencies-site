@@ -1,56 +1,59 @@
 {% extends "base.html" %}
-{% block title %}Уведомления о курсе{% endblock %}
+{% block title %}Уведомления{% endblock %}
 {% block content %}
-<h1 class="mt-4">Уведомления о курсе валют</h1>
-<form id="notify-form" class="mt-4">
-    <div class="mb-3">
-        <label for="notify-email" class="form-label">Ваш email:</label>
-        <input type="email" class="form-control" id="notify-email" placeholder="example@example.com" required>
+<h1 class="mt-4">Уведомления о курсах валют</h1>
+<form id="notify-form">
+    <div class="input-field">
+        <select id="currency-selector" class="browser-default">
+            <!-- Валюты загружаются динамически -->
+        </select>
+        <label for="currency-selector">Выберите валюту</label>
     </div>
-    <div class="mb-3">
-        <label for="notify-currency" class="form-label">Валюта:</label>
-        <select id="notify-currency" class="form-select"></select>
+    <div class="input-field">
+        <input type="number" id="target-rate" placeholder="Введите целевой курс" required>
+        <label for="target-rate">Целевой курс</label>
     </div>
-    <div class="mb-3">
-        <label for="notify-rate" class="form-label">Целевой курс:</label>
-        <input type="number" class="form-control" id="notify-rate" placeholder="Введите курс" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Подписаться</button>
+    <button type="submit" class="btn waves-effect waves-light teal">Добавить уведомление</button>
 </form>
-<p id="notify-message" class="mt-3"></p>
+<p id="notification-result"></p>
+
 <script>
-    // Загрузка валют в выпадающий список
-    fetch('/api/rates')
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                const currencySelector = document.getElementById('notify-currency');
-                data.data.forEach(rate => {
-                    const option = `<option value="${rate.code}">${rate.name}</option>`;
-                    currencySelector.innerHTML += option;
+    document.addEventListener('DOMContentLoaded', function() {
+        // Загружаем список валют
+        fetch('/api/rates')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const currencySelector = document.getElementById('currency-selector');
+                    data.data.forEach(rate => {
+                        const option = `<option value="${rate.code}">${rate.code}</option>`;
+                        currencySelector.innerHTML += option;
+                    });
+                } else {
+                    alert(data.message || 'Ошибка загрузки данных валют');
+                }
+            });
+
+        // Обработка формы
+        document.getElementById('notify-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const currency = document.getElementById('currency-selector').value;
+            const targetRate = document.getElementById('target-rate').value;
+
+            fetch('/api/notify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ currency, targetRate })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('notification-result').textContent =
+                            'Уведомление добавлено успешно!';
+                    } else {
+                        alert(data.message || 'Ошибка добавления уведомления');
+                    }
                 });
-            }
-        });
-
-    // Обработка формы
-    document.getElementById('notify-form').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const email = document.getElementById('notify-email').value;
-        const currency = document.getElementById('notify-currency').value;
-        const rate = document.getElementById('notify-rate').value;
-
-        fetch('/api/notify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, currency, rate })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                document.getElementById('notify-message').innerText = 'Вы успешно подписались!';
-            } else {
-                document.getElementById('notify-message').innerText = 'Ошибка при подписке.';
-            }
         });
     });
 </script>

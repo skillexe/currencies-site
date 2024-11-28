@@ -87,12 +87,11 @@ def get_rates():
     for currency in root.findall("Valute"):
         rates.append({
             "code": currency.find("CharCode").text,
-            "name": currency.find("Name").text,
             "value": float(currency.find("Value").text.replace(",", ".")),
             "nominal": int(currency.find("Nominal").text)
         })
 
-    return jsonify({"status": "success", "base_currency": "RUB", "data": rates})
+    return jsonify({"status": "success", "data": rates})
 
 # API для получения исторических данных курсов валют
 @app.route("/api/rates_history")

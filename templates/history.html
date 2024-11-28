@@ -21,4 +21,65 @@
 </form>
 
 <canvas id="currency-chart" width="400" height="200"></canvas>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Загружаем список валют
+        fetch('/api/rates')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const currencySelector = document.getElementById('currency-selector');
+                    data.data.forEach(rate => {
+                        const option = `<option value="${rate.code}">${rate.code}</option>`;
+                        currencySelector.innerHTML += option;
+                    });
+                } else {
+                    alert(data.message || 'Ошибка загрузки данных валют');
+                }
+            });
+
+        // Обработка формы
+        document.getElementById('date-range-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const currency = document.getElementById('currency-selector').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+
+            fetch(`/api/rates_history?currency=${currency}&start_date=${startDate}&end_date=${endDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        renderChart(data.dates, data.rates);
+                    } else {
+                        alert(data.message || 'Ошибка загрузки данных');
+                    }
+                });
+        });
+
+        function renderChart(labels, data) {
+            const chartCanvas = document.getElementById('currency-chart').getContext('2d');
+            new Chart(chartCanvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Курс валюты',
+                        data: data,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: { display: true, text: 'Дата' } },
+                        y: { title: { display: true, text: 'Курс' }, beginAtZero: false }
+                    }
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}
