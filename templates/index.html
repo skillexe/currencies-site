@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Курсы валют{% endblock %}
+{% block content %}
+<h1 class="mt-4">Текущие курсы валют</h1>
+<p>Выберите источник данных:</p>
+<div class="mb-3">
+    <button id="source-cbr" class="btn btn-primary active-source">ЦБ РФ</button>
+    <button id="source-exchangerate" class="btn btn-secondary">ExchangeRate</button>
+</div>
+<table id="rates-table" class="table table-striped table-bordered mt-4">
+    <thead>
+        <tr>
+            <th>Код</th>
+            <th>Курс</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Курсы загружаются динамически -->
+    </tbody>
+</table>
+<script>
+    const ratesTable = document.getElementById('rates-table');
+
+    // Применяем темную тему для таблицы при её включении
+    if (localStorage.getItem('theme') === 'dark') {
+        ratesTable.classList.add('table-dark');
+    }
+
+    // Функция загрузки курсов валют
+    function loadRates(apiEndpoint, activeButton) {
+        fetch(apiEndpoint)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    ratesTable.querySelector('tbody').innerHTML = ''; // Очищаем таблицу
+                    data.data.forEach(rate => {
+                        const row = `
+                            <tr>
+                                <td>${rate.code}</td>
+                                <td>${rate.value.toFixed(2)}</td>
+                            </tr>`;
+                        ratesTable.querySelector('tbody').innerHTML += row;
+                    });
+
+                    // Обновляем цвет кнопок
+                    document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active-source'));
+                    activeButton.classList.add('active-source');
+                } else {
+                    alert(data.message || 'Ошибка загрузки курсов валют');
+                }
+            });
+    }
+
+    // Обновляем цвет кнопок
+    function updateActiveButton(activeButton) {
+        document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active-source'));
+        activeButton.classList.add('active-source');
+    }
+
+    // Обработчики для кнопок
+    document.getElementById('source-cbr').addEventListener('click', (e) => {
+        loadRates('/api/rates', e.target); // Обновляем активную кнопку
+    });
+
+    document.getElementById('source-exchangerate').addEventListener('click', (e) => {
+        loadRates('/api/rates_exchangerate', e.target); // Обновляем активную кнопку
+    });
+
+    // Загрузка данных по умолчанию (ЦБ РФ)
+    loadRates('/api/rates', document.getElementById('source-cbr'));
+
+    // Переключение класса таблицы при смене темы
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+        ratesTable.classList.toggle('table-dark');
+    });
+</script>
+<style>
+    .active-source {
+        background-color: #0d6efd !important; /* Синий фон */
+        color: #ffffff !important; /* Белый текст */
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Уведомления о курсе{% endblock %}
+{% block content %}
+<h1 class="mt-4">Уведомления о курсе валют</h1>
+<form id="notify-form" class="mt-4">
+    <div class="mb-3">
+        <label for="notify-email" class="form-label">Ваш email:</label>
+        <input type="email" class="form-control" id="notify-email" placeholder="example@example.com" required>
+    </div>
+    <div class="mb-3">
+        <label for="notify-currency" class="form-label">Валюта:</label>
+        <select id="notify-currency" class="form-select"></select>
+    </div>
+    <div class="mb-3">
+        <label for="notify-rate" class="form-label">Целевой курс:</label>
+        <input type="number" class="form-control" id="notify-rate" placeholder="Введите курс" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Подписаться</button>
+</form>
+<p id="notify-message" class="mt-3"></p>
+<script>
+    // Загрузка валют в выпадающий список
+    fetch('/api/rates')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const currencySelector = document.getElementById('notify-currency');
+                data.data.forEach(rate => {
+                    const option = `<option value="${rate.code}">${rate.name}</option>`;
+                    currencySelector.innerHTML += option;
+                });
+            }
+        });
+
+    // Обработка формы
+    document.getElementById('notify-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const email = document.getElementById('notify-email').value;
+        const currency = document.getElementById('notify-currency').value;
+        const rate = document.getElementById('notify-rate').value;
+
+        fetch('/api/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, currency, rate })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById('notify-message').innerText = 'Вы успешно подписались!';
+            } else {
+                document.getElementById('notify-message').innerText = 'Ошибка при подписке.';
+            }
+        });
+    });
+</script>
+{% endblock %}
