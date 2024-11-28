@@ -4,47 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Currencies Site{% endblock %}</title>
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Иконки Material Design -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Пользовательские стили -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/">Currencies Site</a>
-        <button id="theme-toggle" class="btn btn-dark-theme">Сменить тему</button>
+    <nav>
+        <div class="nav-wrapper teal">
+            <a href="/" class="brand-logo center">Currencies Site</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li><a href="/converter">Конвертер</a></li>
+                <li><a href="/history">Графики</a></li>
+                <li><a href="/notifications">Уведомления</a></li>
+            </ul>
+        </div>
     </nav>
 
     <div class="container mt-4">
         {% block content %}{% endblock %}
     </div>
-    
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const body = document.body;
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                body.classList.add('dark-theme');
-                const ratesTable = document.getElementById('rates-table');
-                if (ratesTable) {
-                    ratesTable.classList.add('table-dark');
-                }
-            }
-        });
-    
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            const body = document.body;
-            body.classList.toggle('dark-theme');
-    
-            if (body.classList.contains('dark-theme')) {
-                localStorage.setItem('theme', 'dark');
-            } else {
-                localStorage.setItem('theme', 'light');
-            }
-    
-            const ratesTable = document.getElementById('rates-table');
-            if (ratesTable) {
-                ratesTable.classList.toggle('table-dark');
-            }
-        });
-    </script>    
+
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- Пользовательский JavaScript -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

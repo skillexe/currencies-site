@@ -1,117 +1,24 @@
 {% extends "base.html" %}
 {% block title %}Графики изменений курсов{% endblock %}
 {% block content %}
-<div class="container">
-    <h1 class="mt-4 mb-4">Графики изменений курсов валют</h1>
+<h1>Графики изменений курсов валют</h1>
 
-    <form id="date-range-form" class="row g-3 mb-4">
-        <div class="col-md-4">
-            <label for="currency-selector" class="form-label">Выберите валюту:</label>
-            <select id="currency-selector" class="form-select">
-                <!-- Валюты загружаются динамически -->
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label for="start-date" class="form-label">Начальная дата:</label>
-            <input type="date" id="start-date" class="form-control" required>
-        </div>
-        <div class="col-md-3">
-            <label for="end-date" class="form-label">Конечная дата:</label>
-            <input type="date" id="end-date" class="form-control" required>
-        </div>
-        <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100">Показать график</button>
-        </div>
-    </form>
+<form id="date-range-form" class="row">
+    <div class="input-field col s6">
+        <label for="currency-selector">Выберите валюту:</label>
+        <select id="currency-selector" class="browser-default">
+            <!-- Валюты загружаются динамически -->
+        </select>
+    </div>
+    <div class="input-field col s3">
+        <label for="start-date">Начальная дата:</label>
+        <input type="date" id="start-date" required>
+    </div>
+    <div class="input-field col s3">
+        <label for="end-date">Конечная дата:</label>
+        <input type="date" id="end-date" required>
+    </div>
+</form>
 
-    <canvas id="currency-chart" class="w-100" style="max-height: 400px;"></canvas>
-</div>
-
-<script>
-    const chartCanvas = document.getElementById('currency-chart').getContext('2d');
-    let currencyChart;
-
-    // Рендер графика
-    function renderChart(labels, data) {
-        if (currencyChart) currencyChart.destroy(); // Удаляем старый график
-        currencyChart = new Chart(chartCanvas, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Курс валюты',
-                    data: data,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: getComputedStyle(document.body).getPropertyValue('--text-color')
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Дата',
-                            color: getComputedStyle(document.body).getPropertyValue('--text-color')
-                        },
-                        ticks: {
-                            color: getComputedStyle(document.body).getPropertyValue('--text-color')
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Курс',
-                            color: getComputedStyle(document.body).getPropertyValue('--text-color')
-                        },
-                        ticks: {
-                            color: getComputedStyle(document.body).getPropertyValue('--text-color')
-                        },
-                        beginAtZero: false
-                    }
-                }
-            }
-        });
-    }
-
-    // Загружаем список валют
-    fetch('/api/rates')
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                const currencySelector = document.getElementById('currency-selector');
-                data.data.forEach(rate => {
-                    const option = `<option value="${rate.code}">${rate.name}</option>`;
-                    currencySelector.innerHTML += option;
-                });
-            }
-        });
-
-    // Обработка формы
-    document.getElementById('date-range-form').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const currency = document.getElementById('currency-selector').value;
-        const startDate = document.getElementById('start-date').value;
-        const endDate = document.getElementById('end-date').value;
-
-        // Формируем запрос к API
-        fetch(`/api/rates_history?currency=${currency}&start_date=${startDate}&end_date=${endDate}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    renderChart(data.dates, data.rates);
-                } else {
-                    alert(data.message || 'Ошибка загрузки данных');
-                }
-            });
-    });
-</script>
+<canvas id="currency-chart" width="400" height="200"></canvas>
 {% endblock %}
