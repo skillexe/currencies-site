@@ -1,0 +1,43 @@
+/* static/css/styles.css */
+
+/* Темная тема */
+body.dark-theme {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.table-dark {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+.btn-dark-theme {
+    background-color: #333333;
+    color: #ffffff;
+    border-color: #444444;
+}
+
+.btn-dark-theme:hover {
+    background-color: #444444;
+    border-color: #555555;
+}
+
+/* Акцентные элементы */
+h1, h2, h3, h4, h5, h6 {
+    color: #ffcc00;
+}
+
+a {
+    color: #76baff;
+}
+
+a:hover {
+    color: #55a3ff;
+    text-decoration: underline;
+}
+
+/* Стиль для активной кнопки источника данных */
+.btn.active-source {
+    background-color: #0d6efd;
+    color: #ffffff;
+}

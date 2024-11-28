@@ -18,26 +18,10 @@
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // JavaScript для переключения темы
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            const body = document.body;
-            body.classList.toggle('dark-theme');
-
-            if (body.classList.contains('dark-theme')) {
-                localStorage.setItem('theme', 'dark');
-            } else {
-                localStorage.setItem('theme', 'light');
-            }
-
-            const ratesTable = document.getElementById('rates-table');
-            if (ratesTable) {
-                ratesTable.classList.toggle('table-dark');
-            }
-        });
-
         document.addEventListener('DOMContentLoaded', () => {
             const body = document.body;
-            if (localStorage.getItem('theme') === 'dark') {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
                 body.classList.add('dark-theme');
                 const ratesTable = document.getElementById('rates-table');
                 if (ratesTable) {
@@ -45,6 +29,22 @@
                 }
             }
         });
-    </script>
+    
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const body = document.body;
+            body.classList.toggle('dark-theme');
+    
+            if (body.classList.contains('dark-theme')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+    
+            const ratesTable = document.getElementById('rates-table');
+            if (ratesTable) {
+                ratesTable.classList.toggle('table-dark');
+            }
+        });
+    </script>    
 </body>
 </html>
